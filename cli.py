@@ -4,7 +4,8 @@ import json
 import typer
 from rich.console import Console
 from rich.table import Table
-from specguard import load_spec, diff_specs, lint_spec, score_spec, has_breaking
+from specguard import load_spec, diff_specs, diff_files, lint_spec, score_spec, has_breaking
+
 
 app = typer.Typer(name="specguard",
                   help="Shield API schema breaking changes & enforce design rules")
@@ -18,7 +19,12 @@ def diff(old: str = typer.Argument(..., help="Old spec path"),
         new: str = typer.Argument(..., help="New spec path"),
         block: bool = typer.Option(True, help="Exit 1 on breaking changes"),
         output: str = typer.Option("table", help="table|json")):
-    """Detect breaking changes between two API specs."""
+    ext = old.rsplit('.', 1)[-1].lower() if '.' in old else ''
+    if ext in ('graphql', 'gql'):
+        changes = diff_files(old, new)
+    else:
+        changes = diff_specs(load_spec(old), load_spec(new))
+
     changes = diff_specs(load_spec(old), load_spec(new))
     if output == "json":
         rows = [dict(zip(('severity', 'type', 'location', 'detail'), c))
