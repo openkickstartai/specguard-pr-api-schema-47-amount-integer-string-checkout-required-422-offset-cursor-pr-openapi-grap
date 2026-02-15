@@ -103,3 +103,12 @@ def score_spec(spec):
 
 def has_breaking(changes):
     return any(sev == 'breaking' for sev, *_ in changes)
+
+
+def diff_files(old_path, new_path):
+    """Auto-dispatch to correct diff engine based on file extension."""
+    ext = Path(old_path).suffix.lower()
+    if ext in ('.graphql', '.gql'):
+        from graphql_diff import diff_graphql_files
+        return diff_graphql_files(old_path, new_path)
+    return diff_specs(load_spec(old_path), load_spec(new_path))
