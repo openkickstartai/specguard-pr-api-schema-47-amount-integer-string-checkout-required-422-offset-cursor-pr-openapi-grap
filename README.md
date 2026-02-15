@@ -1,0 +1,1 @@
+# specguard-pr-api-schema-47-amount-integer-string-checkout-required-422-offset-cursor-pr-openapi-grap
